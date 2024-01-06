@@ -13,10 +13,15 @@ import com.dplayer.videoplayer.databinding.DetailsBinding
 import com.dplayer.videoplayer.databinding.VideoItemBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
-class VideoAdapter(val data: ArrayList<VideoModel>): RecyclerView.Adapter<VideoAdapter.ViewHolder>() {
+class VideoAdapter(private var data: ArrayList<VideoModel>): RecyclerView.Adapter<VideoAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoAdapter.ViewHolder {
         val binding = VideoItemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         return ViewHolder(binding)
+    }
+
+    fun filtered(data: ArrayList<VideoModel>){
+        this.data = data
+        notifyDataSetChanged()
     }
 
     private fun size(s:Long): String{
@@ -70,7 +75,10 @@ class VideoAdapter(val data: ArrayList<VideoModel>): RecyclerView.Adapter<VideoA
             .error(R.drawable.thumb)
             .into(holder.binding.pic)
         holder.binding.details.setOnClickListener {
-            details(holder.itemView.context,vid.title,duration(vid.duration),size(vid.size),vid.path,vid.date)
+            vid.title?.let { it1 ->
+                details(holder.itemView.context,
+                    it1,duration(vid.duration),size(vid.size),vid.path,vid.date)
+            }
         }
     }
 

@@ -1,16 +1,16 @@
 package com.dplayer.videoplayer
 
-import android.content.ContentUris
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dplayer.videoplayer.adapter.VideoAdapter
@@ -27,9 +27,10 @@ import java.util.Locale
 class BrowseActivity : AppCompatActivity() {
 
     private lateinit var binding:ActivityBrowseBinding
-    private val videoList: ArrayList<VideoModel> = ArrayList<VideoModel>()
+    private val videoList: ArrayList<VideoModel> = ArrayList()
     private lateinit var recy: RecyclerView
-    private var check:Int = 0;
+    private var check:Int = 0
+    private lateinit var adapter: VideoAdapter
 
     private fun sort(){
 
@@ -112,20 +113,54 @@ class BrowseActivity : AppCompatActivity() {
 
         getAllVideo()
 
-        recy.adapter = VideoAdapter(videoList)
+        adapter = VideoAdapter(videoList)
+        recy.adapter = adapter
         recy.layoutManager = LinearLayoutManager(applicationContext,LinearLayoutManager.VERTICAL,false)
 
         binding.sort.setOnClickListener {
             sort()
         }
 
+        binding.search.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s != null){
+                    val searched =  ArrayList<VideoModel>()
+                    for (i in videoList){
+                        if (i.title?.lowercase(Locale.ROOT)?.contains(s.toString().lowercase(Locale.ROOT)) == true){
+                            searched.add(i)
+                        }
+                    }
+                    if (searched.isNotEmpty()){
+                        recy.visibility = View.VISIBLE
+                        binding.notF.visibility = View.GONE
+                        adapter.filtered(searched)
+                        adapter.notifyDataSetChanged()
+                    }else{
+                        recy.visibility = View.GONE
+                        binding.notF.visibility = View.VISIBLE
+                    }
+                }
+
+            }
+
+        })
+
         binding.searchIcons.setOnClickListener {
             val v = if (binding.search.visibility == View.GONE) View.VISIBLE else View.GONE
             if (v != View.VISIBLE){
                 val view:View? = this.currentFocus
                 if (view != null){
+                    binding.search.text = Editable.Factory.getInstance().newEditable("")
                     val input = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                    input.hideSoftInputFromWindow(view?.windowToken,0)
+                    input.hideSoftInputFromWindow(view.windowToken,0)
                 }
             }
             binding.search.visibility = v
