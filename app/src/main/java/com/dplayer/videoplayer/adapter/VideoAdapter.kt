@@ -1,12 +1,12 @@
 package com.dplayer.videoplayer.adapter
 
-import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.dplayer.videoplayer.PlayerActivity
 import com.dplayer.videoplayer.R
 import com.dplayer.videoplayer.data.VideoModel
 import com.dplayer.videoplayer.databinding.DetailsBinding
@@ -80,6 +80,11 @@ class VideoAdapter(private var data: ArrayList<VideoModel>): RecyclerView.Adapte
                     it1,duration(vid.duration),size(vid.size),vid.path,vid.date)
             }
         }
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, PlayerActivity::class.java)
+                .putExtra("uri",vid.path)
+            holder.itemView.context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -89,7 +94,6 @@ class VideoAdapter(private var data: ArrayList<VideoModel>): RecyclerView.Adapte
     inner class ViewHolder(val binding: VideoItemBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(item: VideoModel){
             binding.title.text = item.title
-
             binding.duration.text = duration(item.duration)
         }
     }
